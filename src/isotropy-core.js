@@ -1,5 +1,6 @@
 /* @flow */
 import type { KoaCtor, KoaType } from "./flow/koa.js";
+import koa from "koa";
 import mount from "isotropy-mount";
 
 type PluginType = {
@@ -30,7 +31,7 @@ export type IsotropyResultType = {
 
 type IsotropyFnType = (apps: Object, options: IsotropyOptionsType) => Promise<IsotropyResultType>;
 
-const getIsotropy = function(koa: KoaCtor, plugins: Plugins) : IsotropyFnType {
+const getIsotropy = function(plugins: Plugins) : IsotropyFnType {
     return async function(apps: Object, options: IsotropyOptionsType) : Promise<IsotropyResultType> {
         const dir = options.dir || __dirname;
         const port = options.port || 8080;

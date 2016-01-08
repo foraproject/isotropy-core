@@ -1,18 +1,7 @@
 import __polyfill from "babel-polyfill";
 import should from 'should';
 import core from "../isotropy-core";
-
-const mockKoa = () => {
-    let _listening = false;
-    return {
-        listening: () => _listening,
-        ctor: function() {
-            this.listen = () => {
-                _listening = true;
-            };
-        }
-    };
-};
+import koa from "koa";
 
 const mockPlugin = () => {
     let _gotDefaults = false;
@@ -35,30 +24,29 @@ const mockPlugin = () => {
 describe("Isotropy Core", () => {
 
     it(`Should return isotropy function`, async () => {
-        const Koa = mockKoa();
         const Plugin = mockPlugin();
         const plugin = new Plugin.ctor();
-        const isotropy = core(Koa.ctor, { "mock": plugin });
+        const isotropy = core({ "mock": plugin });
         const apps = [
             { type: "mock", path: "/" }
         ];
-        await isotropy(apps, {});
-        Koa.listening().should.be.true();
+        const result = await isotropy(apps, {});
+        result.koa.should.not.be.empty();
         Plugin.gotDefaults().should.be.true();
         Plugin.setup().should.be.true();
     });
 
 
-    it(`Should not call listen if koa is passed in`, async () => {
-        const Koa = mockKoa();
+    it(`Should use external koa instance if provided as argument`, async () => {
         const Plugin = mockPlugin();
         const plugin = new Plugin.ctor();
-        const isotropy = core(Koa.ctor, { "mock": plugin });
+        const isotropy = core({ "mock": plugin });
         const apps = [
             { type: "mock", path: "/" }
         ];
-        await isotropy(apps, { defaultInstance: new Koa.ctor() });
-        Koa.listening().should.be.false();
+        const defaultInstance = new koa();
+        const result = await isotropy(apps, { defaultInstance });
+        result.koa.should.equal(defaultInstance);
         Plugin.gotDefaults().should.be.true();
         Plugin.setup().should.be.true();
     });
