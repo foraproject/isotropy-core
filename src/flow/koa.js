@@ -1,3 +1,4 @@
+/* @flow */
 export type KoaType = {
     use: (middleware: KoaMiddlewareType) => void;
     middleware: Array<KoaMiddlewareType>;
@@ -16,3 +17,5 @@ export type KoaContextType = {
     status: number;
     body: string;
 }
+
+export type KoaCtor = () => KoaType;
