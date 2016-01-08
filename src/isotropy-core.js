@@ -2,13 +2,13 @@
 import type { KoaCtor, KoaType } from "./flow/koa.js";
 import mount from "isotropy-mount";
 
-type Plugin = {
+type PluginType = {
     getDefaults: (app: Object) => Object,
     setup: (appSettings: Object, instance: KoaType, options: PluginOptions) => Promise
 };
 
 type Plugins = {
-    [key: string]: Plugin
+    [key: string]: PluginType
 }
 
 type PluginOptions = {
@@ -30,7 +30,7 @@ export type IsotropyResultType = {
 
 type IsotropyFnType = (apps: Object, options: IsotropyOptionsType) => Promise<IsotropyResultType>;
 
-const getIsotropy = function(koa: KoaCtor, plugins: Array<Plugin>) : IsotropyFnType {
+const getIsotropy = function(koa: KoaCtor, plugins: Plugins) : IsotropyFnType {
     return async function(apps: Object, options: IsotropyOptionsType) : Promise<IsotropyResultType> {
         const dir = options.dir || __dirname;
         const port = options.port || 8080;
@@ -42,7 +42,7 @@ const getIsotropy = function(koa: KoaCtor, plugins: Array<Plugin>) : IsotropyFnT
         };
 
         for (let app of apps) {
-            const plugin: Plugin = plugins[app.type];
+            const plugin: PluginType = plugins[app.type];
             const appSettings = plugin.getDefaults(app);
             if (appSettings.path === "/") {
                 await plugin.setup(appSettings, defaultInstance, pluginOptions);
