@@ -1,7 +1,7 @@
 import __polyfill from "babel-polyfill";
 import should from 'should';
+import Router from "isotropy-router";
 import core from "../isotropy-core";
-import koa from "koa";
 
 const mockPlugin = () => {
   let _gotDefaults = false;
@@ -30,23 +30,23 @@ describe("Isotropy Core", () => {
     const apps = [
       { type: "mock", path: "/" }
     ];
-    const result = await isotropy(apps, {});
-    result.koa.should.not.be.empty();
+    const result = await isotropy(apps);
+    result.router.should.not.be.empty();
     Plugin.gotDefaults().should.be.true();
     Plugin.setup().should.be.true();
   });
 
 
-  it(`Should use external koa instance if provided as argument`, async () => {
+  it(`Should use external router if provided as argument`, async () => {
     const Plugin = mockPlugin();
     const plugin = new Plugin.ctor();
     const isotropy = core({ "mock": plugin });
     const apps = [
       { type: "mock", path: "/" }
     ];
-    const defaultInstance = new koa();
-    const result = await isotropy(apps, { defaultInstance });
-    result.koa.should.equal(defaultInstance);
+    const router = new Router();
+    const result = await isotropy(apps, { router });
+    result.router.should.equal(router);
     Plugin.gotDefaults().should.be.true();
     Plugin.setup().should.be.true();
   });

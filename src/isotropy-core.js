@@ -1,11 +1,11 @@
 /* @flow */
-import type { KoaCtor, KoaType } from "./flow/koa.js";
-import koa from "koa";
-import mount from "isotropy-mount";
+import http from "http";
+import Router from "isotropy-router";
+
 
 type PluginType = {
   getDefaults: (app: Object) => Object,
-  setup: (appSettings: Object, instance: KoaType, options: PluginOptions) => Promise
+  setup: (appSettings: Object, router: Router, options: PluginOptions) => Promise
 };
 
 type Plugins = {
@@ -19,23 +19,24 @@ type PluginOptions = {
 }
 
 type IsotropyOptionsType = {
-  dir: string,
-  port: number,
-  plugins: Plugins,
-  defaultInstance: KoaType
+  dir?: string,
+  port?: number,
+  router?: Router
 };
 
 export type IsotropyResultType = {
-  koa: KoaType
+  router: Router,
+  server?: http.Server
 };
 
 type IsotropyFnType = (apps: Object, options: IsotropyOptionsType) => Promise<IsotropyResultType>;
 
 const getIsotropy = function(plugins: Plugins) : IsotropyFnType {
-  return async function(apps: Object, options: IsotropyOptionsType) : Promise<IsotropyResultType> {
+  return async function(apps: Object, options: IsotropyOptionsType = {}) : Promise<IsotropyResultType> {
+    const defaultRouter = options.router || new Router();
+
     const dir = options.dir || __dirname;
     const port = options.port || 8080;
-    const defaultInstance: KoaType = options.defaultInstance || new koa();
 
     const pluginOptions = {
       dir,
@@ -46,22 +47,21 @@ const getIsotropy = function(plugins: Plugins) : IsotropyFnType {
       const plugin: PluginType = plugins[app.type];
       const appSettings = plugin.getDefaults(app);
       if (appSettings.path === "/") {
-        await plugin.setup(appSettings, defaultInstance, pluginOptions);
+        await plugin.setup(appSettings, defaultRouter, pluginOptions);
       } else {
-        const newInstance = new koa();
-        await plugin.setup(appSettings, newInstance, pluginOptions);
-        defaultInstance.use(mount(appSettings.path, newInstance));
+        const router = new Router();
+        await plugin.setup(appSettings, router, pluginOptions);
+        defaultRouter.mount(appSettings.path, router);
       }
     }
 
-    // If we were passed in defaultInstance via options, listen() must be done at callsite.
-    if (!options.defaultInstance) {
-      defaultInstance.listen(port);
+    if (!options.router) {
+      const server = http.createServer((req, res) => defaultRouter.doRouting(req, res));
+      return { server, router: defaultRouter };
+    } else {
+      return { router: defaultRouter };
     }
 
-    return {
-      koa: defaultInstance
-    };
   };
 };
 

@@ -1,7 +1,6 @@
 [include]
 
 [libs]
-interfaces/
 
 [options]
 
@@ -11,4 +10,3 @@ interfaces/
 .*/node_modules/babel-.*/.*
 .*/node_modules/babylon/.*
 .*/node_modules/fbjs/.*
-.*/node_modules/koa/.*
