@@ -2,23 +2,22 @@
 import http from "http";
 import Router from "isotropy-router";
 
-
-type PluginType = {
+export type PluginType = {
   getDefaults: (app: Object) => Object,
   setup: (appSettings: Object, router: Router, options: PluginOptions) => Promise
 };
 
-type Plugins = {
+export type Plugins = {
   [key: string]: PluginType
 }
 
-type PluginOptions = {
+export type PluginOptions = {
   dir: string,
   port: number,
   graphiql?: boolean
 }
 
-type IsotropyOptionsType = {
+export type IsotropyOptionsType = {
   dir?: string,
   port?: number,
   router?: Router
