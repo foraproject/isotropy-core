@@ -1,6 +1,9 @@
 /* @flow */
 import http from "http";
+import promisify from "nodefunc-promisify";
 import Router from "isotropy-router";
+
+import type { IncomingMessage, ServerResponse } from "./flow/http";
 
 export type PluginType = {
   getDefaults: (app: Object) => Object,
@@ -20,7 +23,8 @@ export type PluginOptions = {
 export type IsotropyOptionsType = {
   dir?: string,
   port?: number,
-  router?: Router
+  router?: Router,
+  handler?: (router: Router) => (req: IncomingMessage, res: ServerResponse) => void
 };
 
 export type IsotropyResultType = {
@@ -35,7 +39,7 @@ const getIsotropy = function(plugins: Plugins) : IsotropyFnType {
     const defaultRouter = options.router || new Router();
 
     const dir = options.dir || __dirname;
-    const port = options.port || 8080;
+    const port = options.port || 0;
 
     const pluginOptions = {
       dir,
@@ -54,13 +58,16 @@ const getIsotropy = function(plugins: Plugins) : IsotropyFnType {
       }
     }
 
+    //if Router was passed in, we are going to assume that server was created outside.
     if (!options.router) {
-      const server = http.createServer((req, res) => defaultRouter.doRouting(req, res));
+      const handler = options.handler ? options.handler(defaultRouter) : ((req, res) => defaultRouter.doRouting(req, res));
+      const server = http.createServer(handler);
+      const listen = promisify(server.listen.bind(server));
+      await server.listen(port);
       return { server, router: defaultRouter };
     } else {
-      return { router: defaultRouter };
+        return { router: defaultRouter };
     }
-
   };
 };
 

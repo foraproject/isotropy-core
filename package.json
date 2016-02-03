@@ -1,7 +1,7 @@
 {
   "author": "Jeswin Kumar <jeswinpk@agilehead.com>",
   "name": "isotropy-core",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Isomorphic component of Isotropy to be reused in Server, Client and Dev implementations.",
   "scripts": {
     "test": "mocha dist/test/test.js"
@@ -13,7 +13,8 @@
   "main": "dist/isotropy-core",
   "license": "MIT",
   "dependencies": {
-    "isotropy-router": "*"
+    "isotropy-router": "*",
+    "nodefunc-promisify": "*"
   },
   "devDependencies": {
     "babel-polyfill": "*",
