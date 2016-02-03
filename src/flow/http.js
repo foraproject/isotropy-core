@@ -1,5 +1,5 @@
 /* @flow */
-export type IncomingMessage = {
+export class IncomingMessage {
   headers: Object;
   httpVersion: string;
   method: string;
@@ -7,15 +7,20 @@ export type IncomingMessage = {
   setTimeout: (msecs: number, callback: Function) => void;
   statusCode: number;
   url: string;
+  query: Object;
+  href: string;
+  pathname: string;
+  search: string;
+  body: Object;
 }
 
-export type ServerResponse = {
+export class ServerResponse {
   writeHead: (code: number, headers: Object) => void;
   write: (data: string) => void;
   end: () => void;
 }
 
-export type Server = {
+export class Server {
   listen: (port: number, hostname?: string, backlog?: number, callback?: Function) => Server;
   listen: (path: string, callback?: Function) => Server;
   listen: (handle: Object, callback?: Function) => Server;
