@@ -16,8 +16,7 @@ export type Plugins = {
 
 export type PluginOptions = {
   dir: string,
-  port: number,
-  graphiql?: boolean
+  port: number
 }
 
 export type IsotropyOptionsType = {
