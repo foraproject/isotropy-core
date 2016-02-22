@@ -1,5 +1,5 @@
 /* @flow */
-export class IncomingMessage {
+export type IncomingMessage = {
   headers: Object;
   httpVersion: string;
   method: string;
@@ -14,13 +14,13 @@ export class IncomingMessage {
   body: Object;
 }
 
-export class ServerResponse {
+export type ServerResponse = {
   writeHead: (code: number, headers: Object) => void;
   write: (data: string) => void;
   end: () => void;
 }
 
-export class Server {
+export type Server = {
   listen: (port: number, hostname?: string, backlog?: number, callback?: Function) => Server;
   listen: (path: string, callback?: Function) => Server;
   listen: (handle: Object, callback?: Function) => Server;
