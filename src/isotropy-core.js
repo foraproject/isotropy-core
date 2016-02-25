@@ -58,8 +58,19 @@ const getIsotropy = function(plugins: Plugins) : IsotropyFnType {
     }
 
     //if Router was passed in, we are going to assume that server was created outside.
+    const onError = options.onError ||
+      ((req, res, e) => {
+        res.statusCode = 200;
+        res.end(e.toString());
+      });
     if (!options.router) {
-      const handler = options.handler ? options.handler(defaultRouter) : ((req, res) => defaultRouter.doRouting(req, res));
+      const handler = options.handler ?
+        options.handler(defaultRouter) :
+        ((req, res) => {
+          const promise = defaultRouter.doRouting(req, res);
+          promise.catch((e) => onError(req, res, e));
+          return promise;
+        });
       const server = http.createServer(handler);
       const listen = promisify(server.listen.bind(server));
       await server.listen(port);

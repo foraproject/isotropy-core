@@ -33,7 +33,10 @@ const mockPlugin = () => {
         _gotDefaults = true;
         return item;
       };
-      this.setup = async () => {
+      this.setup = async (appConfig, router) => {
+        if (appConfig.routes) {
+          router.add(appConfig.routes);
+        }
         _setup = true;
       };
     }
@@ -42,7 +45,7 @@ const mockPlugin = () => {
 
 describe("Isotropy Core", () => {
 
-  it(`return isotropy function`, async () => {
+  it(`returns isotropy function`, async () => {
     const Plugin = mockPlugin();
     const plugin = new Plugin.ctor();
     const isotropy = core({ "mock": plugin });
@@ -56,7 +59,7 @@ describe("Isotropy Core", () => {
   });
 
 
-  it(`use external router if provided as argument`, async () => {
+  it(`uses external router if provided as argument`, async () => {
     const Plugin = mockPlugin();
     const plugin = new Plugin.ctor();
     const isotropy = core({ "mock": plugin });
@@ -71,7 +74,7 @@ describe("Isotropy Core", () => {
   });
 
 
-  it(`use external handler if provided as argument`, async () => {
+  it(`uses external handler if provided as argument`, async () => {
     let calledCustomHandler = false;
     const Plugin = mockPlugin();
     const plugin = new Plugin.ctor();
@@ -87,5 +90,57 @@ describe("Isotropy Core", () => {
     const data = await makeRequest("localhost", result.server.address().port, "/", "GET", { 'Content-Type': 'application/x-www-form-urlencoded' });
     Plugin.gotDefaults().should.be.true();
     Plugin.setup().should.be.true();
+  });
+
+
+  it(`calls onError if provided`, async () => {
+    const Plugin = mockPlugin();
+    const plugin = new Plugin.ctor();
+    const isotropy = core({ "mock": plugin });
+
+    const routes = [
+      { url: "/", method: "GET", handler: async (req, res) => { throw "BOOM!"; } }
+    ];
+    const appConfig = { type: "mock", path: "/", routes };
+
+    let error, data;
+    const isotropyConfig = {
+      dir: __dirname,
+      onError: (req, res, e) => {
+        error = e;
+        res.statusCode = 200;
+        res.end(e.toString());
+      }
+    };
+    const result = await isotropy([appConfig], isotropyConfig);
+    try {
+      data = await makeRequest("localhost", result.server.address().port, "/", "GET", { 'Content-Type': 'application/x-www-form-urlencoded' });
+    } finally {
+      data.result.should.equal("BOOM!");
+      error.should.equal("BOOM!");
+    }
+  });
+
+
+  it(`returns error message`, async () => {
+    const Plugin = mockPlugin();
+    const plugin = new Plugin.ctor();
+    const isotropy = core({ "mock": plugin });
+
+    const routes = [
+      { url: "/", method: "GET", handler: async (req, res) => { throw "BOOM!"; } }
+    ];
+    const appConfig = { type: "mock", path: "/", routes };
+
+    let data;
+    const isotropyConfig = {
+      dir: __dirname
+    };
+    const result = await isotropy([appConfig], isotropyConfig);
+    try {
+      data = await makeRequest("localhost", result.server.address().port, "/", "GET", { 'Content-Type': 'application/x-www-form-urlencoded' });
+    } finally {
+      data.result.should.equal("BOOM!");
+    }
   });
 });
