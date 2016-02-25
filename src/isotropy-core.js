@@ -61,6 +61,7 @@ const getIsotropy = function(plugins: Plugins) : IsotropyFnType {
     const onError = options.onError ||
       ((req, res, e) => {
         res.statusCode = 200;
+        res.statusMessage = e.toString();
         res.end(e.toString());
       });
     if (!options.router) {
