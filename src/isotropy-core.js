@@ -6,13 +6,10 @@ import Router from "isotropy-router";
 import type { IncomingMessage, ServerResponse } from "./flow/http";
 
 export type PluginType = {
+  name: string,
   getDefaults: (app: Object) => Object,
   setup: (appSettings: Object, router: Router, options: PluginOptions) => Promise
 };
-
-export type Plugins = {
-  [key: string]: PluginType
-}
 
 export type PluginOptions = {
   dir: string,
@@ -33,7 +30,7 @@ export type IsotropyResultType = {
 
 type IsotropyFnType = (apps: Object, options: IsotropyOptionsType) => Promise<IsotropyResultType>;
 
-const getIsotropy = function(plugins: Plugins) : IsotropyFnType {
+const getIsotropy = function(plugins: Array<PluginType>) : IsotropyFnType {
   return async function(apps: Object, options: IsotropyOptionsType = {}) : Promise<IsotropyResultType> {
     const defaultRouter = options.router || new Router();
 
@@ -46,7 +43,7 @@ const getIsotropy = function(plugins: Plugins) : IsotropyFnType {
     };
 
     for (let app of apps) {
-      const plugin: PluginType = plugins[app.type];
+      const plugin: PluginType = plugins.filter(p => p.name === app.type)[0];
       const appSettings = plugin.getDefaults(app);
       if (appSettings.path === "/") {
         await plugin.setup(appSettings, defaultRouter, pluginOptions);
