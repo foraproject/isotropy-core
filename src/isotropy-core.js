@@ -8,7 +8,8 @@ import type { IncomingMessage, ServerResponse } from "./flow/http";
 export type PluginType = {
   name: string,
   getDefaults: (app: Object) => Object,
-  setup: (appSettings: Object, router: Router, options: PluginOptions) => Promise
+  setup: (appSettings: Object, router: Router, options: PluginOptions) => Promise,
+  onError?: (req: IncomingMessage, res: ServerResponse, e: any) => void
 };
 
 export type PluginOptions = {
@@ -32,7 +33,15 @@ type IsotropyFnType = (apps: Object, options: IsotropyOptionsType) => Promise<Is
 
 const getIsotropy = function(plugins: Array<PluginType>) : IsotropyFnType {
   return async function(apps: Object, options: IsotropyOptionsType = {}) : Promise<IsotropyResultType> {
-    const defaultRouter = options.router || new Router();
+    //if Router was passed in, we are going to assume that server was created outside.
+    const onError = options.onError ||
+      ((req, res, e) => {
+        res.statusCode = 200;
+        res.statusMessage = e.toString();
+        res.end(e.toString());
+      });
+
+    const defaultRouter = options.router || new Router({ onError });
 
     const dir = options.dir || __dirname;
     const port = options.port || 0;
@@ -48,27 +57,14 @@ const getIsotropy = function(plugins: Array<PluginType>) : IsotropyFnType {
       if (appSettings.path === "/") {
         await plugin.setup(appSettings, defaultRouter, pluginOptions);
       } else {
-        const router = new Router();
+        const router = new Router({ onError: app.onError });
         await plugin.setup(appSettings, router, pluginOptions);
         defaultRouter.mount(appSettings.path, router);
       }
     }
 
-    //if Router was passed in, we are going to assume that server was created outside.
-    const onError = options.onError ||
-      ((req, res, e) => {
-        res.statusCode = 200;
-        res.statusMessage = e.toString();
-        res.end(e.toString());
-      });
     if (!options.router) {
-      const handler = options.handler ?
-        options.handler(defaultRouter) :
-        ((req, res) => {
-          const promise = defaultRouter.doRouting(req, res);
-          promise.catch((e) => onError(req, res, e));
-          return promise;
-        });
+      const handler = options.handler ? options.handler(defaultRouter) : ((req, res) => defaultRouter.doRouting(req, res));
       const server = http.createServer(handler);
       const listen = promisify(server.listen.bind(server));
       await server.listen(port);
