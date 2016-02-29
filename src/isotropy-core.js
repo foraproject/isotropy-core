@@ -29,7 +29,7 @@ export type IsotropyResultType = {
 };
 
 interface HttpModuleType {
-  createServer: (requestListener: (req: IncomingMessage, res: ServerResponse) => any) => Server
+  createServer(requestListener?: (req: IncomingMessage, res: ServerResponse) => any) : Server
 }
 
 type IsotropyFnType = (apps: Object, options: IsotropyOptionsType) => Promise<IsotropyResultType>;
@@ -70,7 +70,7 @@ const getIsotropy = function(plugins: Array<PluginType>, http: HttpModuleType) :
       const handler = options.handler ? options.handler(defaultRouter) : ((req, res) => defaultRouter.doRouting(req, res));
       const server = http.createServer(handler);
       const listen = promisify(server.listen.bind(server));
-      await server.listen(port);
+      await listen(port);
       return { server, router: defaultRouter };
     } else {
         return { router: defaultRouter };
