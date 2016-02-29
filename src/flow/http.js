@@ -21,7 +21,5 @@ export type ServerResponse = {
 }
 
 export type Server = {
-  listen: (port: number, hostname?: string, backlog?: number, callback?: Function) => Server;
-  listen: (path: string, callback?: Function) => Server;
-  listen: (handle: Object, callback?: Function) => Server;
+  listen: (port: number) => Server;
 }

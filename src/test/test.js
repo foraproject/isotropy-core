@@ -51,7 +51,7 @@ describe("Isotropy Core", () => {
   it(`returns isotropy function`, async () => {
     const Plugin = mockPlugin();
     const plugin = new Plugin.ctor();
-    const isotropy = core([plugin]);
+    const isotropy = core([plugin], http);
     const apps = [
       { type: "mock", path: "/" }
     ];
@@ -65,7 +65,7 @@ describe("Isotropy Core", () => {
   it(`uses external router if provided as argument`, async () => {
     const Plugin = mockPlugin();
     const plugin = new Plugin.ctor();
-    const isotropy = core([plugin]);
+    const isotropy = core([plugin], http);
     const apps = [
       { type: "mock", path: "/" }
     ];
@@ -81,7 +81,7 @@ describe("Isotropy Core", () => {
     let calledCustomHandler = false;
     const Plugin = mockPlugin();
     const plugin = new Plugin.ctor();
-    const isotropy = core([plugin]);
+    const isotropy = core([plugin], http);
     const apps = [
       { type: "mock", path: "/" }
     ];
@@ -99,7 +99,7 @@ describe("Isotropy Core", () => {
   it(`calls onError if provided`, async () => {
     const Plugin = mockPlugin();
     const plugin = new Plugin.ctor();
-    const isotropy = core([plugin]);
+    const isotropy = core([plugin], http);
 
     const routes = [
       { url: "/", method: "GET", handler: async (req, res) => { throw "BOOM!"; } }
@@ -128,7 +128,7 @@ describe("Isotropy Core", () => {
   it(`returns error message`, async () => {
     const Plugin = mockPlugin();
     const plugin = new Plugin.ctor();
-    const isotropy = core([plugin]);
+    const isotropy = core([plugin], http);
 
     const routes = [
       { url: "/", method: "GET", handler: async (req, res) => { throw "BOOM!"; } }
