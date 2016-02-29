@@ -21,5 +21,5 @@ export interface ServerResponse {
 }
 
 export interface Server {
-  listen(port: number) : Server;
+  listen(port: number, callback?: Function) : Server;
 }

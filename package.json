@@ -1,7 +1,7 @@
 {
   "author": "Jeswin Kumar <jeswinpk@agilehead.com>",
   "name": "isotropy-core",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "Isomorphic component of Isotropy to be reused in Server, Client and Dev implementations.",
   "scripts": {
     "test": "mocha dist/test/test.js"
