@@ -28,7 +28,7 @@ export type IsotropyResultType = {
   server?: Server
 };
 
-type HttpModuleType = {
+interface HttpModuleType {
   createServer: (requestListener: (req: IncomingMessage, res: ServerResponse) => any) => Server
 }
 
