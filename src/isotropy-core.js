@@ -1,4 +1,5 @@
 /* @flow */
+import http from "http";
 import promisify from "nodefunc-promisify";
 import Router from "isotropy-router";
 
@@ -28,13 +29,9 @@ export type IsotropyResultType = {
   server?: Server
 };
 
-interface HttpModuleType {
-  createServer(requestListener?: (req: IncomingMessage, res: ServerResponse) => any) : Server
-}
-
 type IsotropyFnType = (apps: Object, options: IsotropyOptionsType) => Promise<IsotropyResultType>;
 
-const getIsotropy = function(plugins: Array<PluginType>, http: HttpModuleType) : IsotropyFnType {
+const getIsotropy = function(plugins: Array<PluginType>) : IsotropyFnType {
   return async function(apps: Object, options: IsotropyOptionsType = {}) : Promise<IsotropyResultType> {
     //if Router was passed in, we are going to assume that server was created outside.
     const onError = options.onError ||
