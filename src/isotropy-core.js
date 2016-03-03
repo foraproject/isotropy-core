@@ -2,8 +2,7 @@
 import http from "http";
 import promisify from "nodefunc-promisify";
 import Router from "isotropy-router";
-
-import type { IncomingMessage, ServerResponse, Server } from "./flow/http";
+import type { IncomingMessage, ServerResponse, Server } from "isotropy-interfaces/node/http";
 
 export type PluginType = {
   name: string,
