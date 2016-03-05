@@ -16,11 +16,15 @@ export type PluginOptions = {
   port: number
 }
 
-export type IsotropyOptionsType = {
+type ListenerType<TIncomingMessage: IncomingMessage, TServerResponse: ServerResponse> = (req: TIncomingMessage, res: TServerResponse) => any;
+
+type HandlerType<TIncomingMessage: IncomingMessage, TServerResponse: ServerResponse> = (router: Router) => ListenerType<TIncomingMessage, TServerResponse>;
+
+export type IsotropyOptionsType<TIncomingMessage: IncomingMessage, TServerResponse: ServerResponse> = {
   dir?: string,
   port?: number,
   router?: Router,
-  handler?: (router: Router) => (req: IncomingMessage, res: ServerResponse) => any
+  handler?: HandlerType<IncomingMessage, ServerResponse>
 };
 
 export type IsotropyResultType = {
@@ -28,10 +32,12 @@ export type IsotropyResultType = {
   server?: Server
 };
 
-type IsotropyFnType = (apps: Object, options: IsotropyOptionsType) => Promise<IsotropyResultType>;
+type IsotropyFnType<TIncomingMessage: IncomingMessage, TServerResponse: ServerResponse> =
+  (apps: Object, options: IsotropyOptionsType<TIncomingMessage, TServerResponse>) => Promise<IsotropyResultType>;
 
-const getIsotropy = function(plugins: Array<PluginType>) : IsotropyFnType {
-  return async function(apps: Object, options: IsotropyOptionsType = {}) : Promise<IsotropyResultType> {
+const getIsotropy= function<TIncomingMessage: IncomingMessage, TServerResponse: ServerResponse>(plugins: Array<PluginType>)
+    : IsotropyFnType<TIncomingMessage, TServerResponse> {
+  return async function(apps: Object, options: IsotropyOptionsType<TIncomingMessage, TServerResponse> = {}) : Promise<IsotropyResultType> {
     //if Router was passed in, we are going to assume that server was created outside.
     const onError = options.onError ||
       ((req, res, e) => {
@@ -63,7 +69,7 @@ const getIsotropy = function(plugins: Array<PluginType>) : IsotropyFnType {
     }
 
     if (!options.router) {
-      const handler = options.handler ? options.handler(defaultRouter) : ((req, res) => defaultRouter.doRouting(req, res));
+      const handler: ListenerType<TIncomingMessage, TServerResponse> = options.handler ? options.handler(defaultRouter) : ((req, res) => defaultRouter.doRouting(req, res));
       const server = http.createServer(handler);
       const listen = promisify(server.listen.bind(server));
       await listen(port);
