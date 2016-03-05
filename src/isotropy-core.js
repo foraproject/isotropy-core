@@ -24,12 +24,12 @@ export type IsotropyOptionsType<TIncomingMessage: IncomingMessage, TServerRespon
   dir?: string,
   port?: number,
   router?: Router,
-  handler?: HandlerType<IncomingMessage, ServerResponse>
+  handler?: HandlerType<TIncomingMessage, TServerResponse>
 };
 
-export type IsotropyResultType = {
+export type IsotropyResultType<TServer : Server> = {
   router: Router,
-  server?: Server
+  server?: TServer
 };
 
 type IsotropyFnType<TIncomingMessage: IncomingMessage, TServerResponse: ServerResponse> =
