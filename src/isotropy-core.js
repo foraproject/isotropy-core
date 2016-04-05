@@ -33,11 +33,11 @@ export type IsotropyResultType<TServer : Server> = {
 };
 
 type IsotropyFnType<TIncomingMessage: IncomingMessage, TServerResponse: ServerResponse> =
-  (apps: Object, options: IsotropyOptionsType<TIncomingMessage, TServerResponse>) => Promise<IsotropyResultType>;
+  (apps: Array<Object>, options: IsotropyOptionsType<TIncomingMessage, TServerResponse>) => Promise<IsotropyResultType>;
 
 const getIsotropy= function<TIncomingMessage: IncomingMessage, TServerResponse: ServerResponse>(plugins: Array<PluginType>)
     : IsotropyFnType<TIncomingMessage, TServerResponse> {
-  return async function(apps: Object, options: IsotropyOptionsType<TIncomingMessage, TServerResponse> = {}) : Promise<IsotropyResultType> {
+  return async function(apps: Array<Object>, options: IsotropyOptionsType<TIncomingMessage, TServerResponse> = {}) : Promise<IsotropyResultType> {
     //if Router was passed in, we are going to assume that server was created outside.
     const onError = options.onError ||
       ((req, res, e) => {
